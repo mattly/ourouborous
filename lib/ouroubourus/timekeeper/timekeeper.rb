@@ -7,7 +7,8 @@ module Ouroubourus
     end
     
     def stop
-      @thread.stop
+      @thread.kill
+      @thread = nil
     end
     
     def resolution_in_seconds
