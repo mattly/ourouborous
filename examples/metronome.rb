@@ -14,8 +14,7 @@ require 'midiator'
 require 'lib/ouroubourus'
 require 'lib/sequencers/metronome'
 
-@s = Ouroubourus::Scheduler.new
-@s.timekeeper = Ouroubourus::LocalTimer.new tempo, :resolution => 80
+@s = Ouroubourus::Scheduler.new :timekeeper => Ouroubourus::LocalTimer.new(tempo, :resolution => 80)
 @midi = MIDIator::Interface.new
 @midi.autodetect_driver
 @midi.program_change 0, 115 # wood block
