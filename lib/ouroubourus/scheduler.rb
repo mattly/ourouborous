@@ -10,7 +10,7 @@ module Ouroubourus
     
     def start
       return false unless timekeeper.kind_of?(Ouroubourus::Timekeeper)
-      timekeeper.start {|now| @subscribers.each{|s| Thread.start { s.run(now) } }}
+      timekeeper.start {|now| @subscribers.each{|s| s.run(now) }}
     end
 
   end

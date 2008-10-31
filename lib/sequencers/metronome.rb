@@ -1,5 +1,6 @@
 class Metronome
   include Ouroubourus::Schedulable
+  include Ouroubourus::MIDI::Generator
   
   attr_accessor :interface, :signature, :channel #, :schedule
   
@@ -9,30 +10,30 @@ class Metronome
     @interface = options[:interface]
     @channel   = options[:channel] || 1
     @basenote  = options[:basenote] || 72
-    @run       = L{|now| tick(now) }
-    schedule.next 480, @run
-  end
-  
-  def tick(now)
-    note = (now % bar_length) == 0 ? one : beat
-    @interface.driver.note_on(note[:pitch], @channel, note[:velocity])
-    @schedule.in(note[:duration], L{ @interface.driver.note_off(note[:pitch], @channel, 0) })
-    @schedule.next note_length, @run
+    @run       = L do |now|
+      play(now % bar_length == 0 ? one : beat)
+      @schedule.next beat_length, @run
+    end
+    schedule.next beat_length, @run
   end
   
   def bar_length
-    @signature.first * note_length
+    @signature.first * beat_length
   end
   
-  def note_length
+  def beat_length
     4.0 / @signature.last * 480
   end
   
   def one
-    {:pitch => @basenote + 12, :velocity => 100, :duration => 180}
+    note(@basenote+12, 100, 180)
   end
   
   def beat
-    {:pitch => @basenote, :velocity => 60, :duration => 90}
+    note(@basenote, 60, 90)
+  end
+  
+  def note(pitch, velocity, duration)
+    Ouroubourus::MIDI::Note.new(pitch, velocity, duration, @channel, 0)
   end
 end

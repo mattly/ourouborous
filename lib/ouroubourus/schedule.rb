@@ -11,7 +11,7 @@ module Ouroubourus
     def run(now)
       @time = now
       ready, @queue = @queue.partition {|pos, proc| pos <= now }
-      ready.each {|time, proc| Thread.start { proc.call(time) } }
+      ready.each {|time, proc| proc.call(time) }
     end
     
     def at(position, block)
