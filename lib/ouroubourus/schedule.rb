@@ -23,7 +23,11 @@ module Ouroubourus
     end
     
     def next(multiple, block)
-      at (@time + multiple - (@time % multiple)), block
+      at (@time + multiple - @time % multiple), block
+    end
+    
+    def first(multiple, block)
+      at (@time - 1 + multiple - (@time - 1) % multiple), block
     end
     
   end

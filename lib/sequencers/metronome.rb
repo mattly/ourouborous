@@ -14,7 +14,7 @@ class Metronome
       play(now % bar_length == 0 ? one : beat)
       @schedule.next beat_length, @run
     end
-    schedule.next beat_length, @run
+    schedule.first beat_length, @run
   end
   
   def bar_length
