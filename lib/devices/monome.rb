@@ -8,6 +8,7 @@ class Monome
     @listener = Datagrammer.new(8000, :speak_port => @host_port)
     @listener.listen {|dg, data| self.send(data.shift.sub('/monome/',''), *data) }
     @grids = []
+    clear
   end
   
   def add_subgrid(grid)
@@ -43,7 +44,6 @@ class Monome
       @blinks = Array.new(@colcount) { Array.new(@rowcount) }
       @leds = {}
       @press = press || L{|c,r,v,s| s.led(c,r,v) }
-      clear
     end
     
     def target?(col, row)
