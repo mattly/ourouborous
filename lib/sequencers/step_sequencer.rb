@@ -32,11 +32,19 @@ class StepSequencer
       @pitch = pitch
       @velocity = options[:velocity] || 100
       @duration = options[:duration] || 80
-      @sequence = options[:sequence].collect {|n| n.to_f } || [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+      @sequence = (options[:sequence] || [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]).collect {|n| n.to_f }
     end
     
     def step(step)
       note(pitch, velocity_for(step).to_i, duration) if rand < @sequence[step]
+    end
+    
+    def get(position)
+      @sequence[position]
+    end
+    
+    def set(position, value)
+      @sequence[position] = value
     end
     
     def velocity_for(step, vel = @velocity)
