@@ -5,8 +5,9 @@ class Monome
   
   def initialize(options={})
     @host_port = options[:host_port] || 8080
+    @prefix = "/#{(options[:prefix] || 'monome')}".gsub('//','/')
     @listener = Datagrammer.new(8000, :speak_port => @host_port)
-    @listener.listen {|dg, data| self.send(data.shift.sub('/monome/',''), *data) }
+    @listener.listen {|dg, data| self.send(data.shift.sub("#{@prefix}/",''), *data) }
     @grids = []
     clear
   end
@@ -18,16 +19,15 @@ class Monome
   end
   
   def press(col, row, val)
-    grid = @grids.detect {|g| g.target?(col, row) }
-    grid.press(col, row, val) if grid
+    @grids.select {|g| g.target?(col, row) }.each {|g| g.press(col, row, val) }
   end
   
   def clear
-    @listener.speak(['/monome/clear'])
+    @listener.speak(["#{@prefix}/clear"])
   end
   
   def led(col, row, val)
-    @listener.speak(['/monome/led', col, row, val])
+    @listener.speak(["#{@prefix}/led", col, row, val])
   end
   
   class Grid
@@ -53,7 +53,7 @@ class Monome
     def press(col, row, val)
       col = col - @offset.first
       row = row - @offset.last
-      @press.call(col, row, val, self)
+      @press.call(col, row, val)
     end
     
     def blink(col, row, rate=0.5, percent=0.5)
@@ -69,7 +69,7 @@ class Monome
     end
     
     def toggle(col, row)
-      @leds[col][row] ? off(col, row) : on(col, row)
+      @leds["#{col}x#{row}"] ? off(col, row) : on(col, row)
     end
     
     def on(col, row)

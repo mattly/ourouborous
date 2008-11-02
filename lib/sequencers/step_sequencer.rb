@@ -2,7 +2,7 @@ class StepSequencer
   include Ouroubourus::Schedulable
   include Ouroubourus::MIDI::Generator
   
-  attr_accessor :size, :sequences, :interface
+  attr_accessor :steps, :sequences, :interface
   
   def initialize(options={})
     super
@@ -11,8 +11,8 @@ class StepSequencer
     @interface  = options[:interface]
     @sequences  = []
     @run = L do |now|
-      step((now % 1920) / 120) # sixteenth notes
-      @schedule.next step_length, @run
+      perform(now / step_length % @steps) # sixteenth notes
+      schedule.next step_length, @run
     end
     schedule.first 1920, @run
   end
@@ -21,21 +21,25 @@ class StepSequencer
     1920 / @steps
   end
   
-  def step(sixteenth)
-    play @sequences.collect {|s| s.step(sixteenth) }.compact
+  def perform(step)
+    results = @sequences.collect {|s| s.run(step) }.compact
+    procs, notes = results.partition {|thing| thing.kind_of?(Array) }
+    play notes
+    procs.each {|p| schedule.next p.first, p.last }
   end
   
   class Sequence
-    attr_accessor :pitch, :velocity, :duration, :sequence
+    attr_accessor :pitch, :velocity, :duration, :sequence, :steps
     
     def initialize(pitch, options={})
       @pitch = pitch
       @velocity = options[:velocity] || 100
       @duration = options[:duration] || 80
-      @sequence = (options[:sequence] || [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]).collect {|n| n.to_f }
+      @steps    = options[:steps] || 16
+      @sequence = (options[:sequence] || [0] * @steps).collect {|n| n.to_f }
     end
     
-    def step(step)
+    def run(step)
       note(pitch, velocity_for(step).to_i, duration) if rand < @sequence[step]
     end
     
