@@ -2,7 +2,7 @@
 # requires a monome, monomeSerial running, sending on /monome to port 8000 and listening on 8080
 # also requires datagrammer, gem install mattly-datagrammer from github
 
-tempo = 96
+tempo = 120
 steps = 16   # 40h or 64 users! change to 8
 
 require 'rubygems'
@@ -35,41 +35,34 @@ class GridSequence
   
   def pressing(col, val)
     if ! val.zero?
-      puts "pressed #{col}"
       val = @sequence.get(col).zero?? 1 : 0
       @sequence.set(col, val)
       @pressings[col] = 1
       @sequence.sequencer.schedule.in 120, L{|now| start_extended_press(col, now) }
     else
-      puts "released #{col}: value is #{@sequence.get(col)}"
-      # puts "pressed for: " + @pressings[col]
       @pressings[col] = 0
     end
     redraw
   end
   
   def start_extended_press(col, time)
-    puts "start: pressings[col] is #{@pressings[col]}"
     return if @pressings[col].zero?
     @pressings[col] = time
-    puts "starting extended: #{col}: #{@pressings[col]}"
     @sequence.sequencer.schedule.in 60, L{|now| continue_extended_press(col, now) }
   end
   
   def continue_extended_press(col, time)
-    puts "cont: pressings[col] is #{@pressings[col]}"
     return if @pressings[col].zero?
     percent = 1.0 - ((time - @pressings[col]) / 960.0)
     return if percent < 0.1
-    puts "continuing extended press: #{percent}"
     @sequence.sequence[col] = percent
-    @grid.blink(col, 0, 0.1, percent/3)
+    @grid.blink(col, 0, 60, percent/3)
     @sequence.sequencer.schedule.in 60, L{|now| continue_extended_press(col, now) }
   end
   
   def redraw
     @sequence.sequence.each_with_index do |val, step|
-      val == val.round ? (val.zero?? @grid.off(step, 0) : @grid.on(step, 0)) : @grid.blink(step, 0, 0.5, val)
+      val == val.round ? (val.zero?? @grid.off(step, 0) : @grid.on(step, 0)) : @grid.blink(step, 0, 480, val)
     end
   end
 end
@@ -114,6 +107,7 @@ sweeper = StepHighlighter.new(@instruments)
 end
 
 @s.subscribers << @beats
+@s.subscribers << @monome
 
 Signal.trap("INT") { @s.timekeeper.thread.exit!; @monome.clear; "Interrupt caught, cancelling..." }
 
