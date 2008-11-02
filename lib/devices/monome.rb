@@ -13,7 +13,7 @@ class Monome
   end
   
   def add_subgrid(grid)
-    raise StandardException unless grid.kind_of?(Monome::Grid)
+    raise "that ain't no grid" unless grid.kind_of?(Monome::Grid)
     grid.parent = self
     @grids << grid
   end
@@ -41,7 +41,7 @@ class Monome
       @rowcount = rows.last - rows.first
       @cols = cols
       @rows = rows
-      @blinks = Array.new(@colcount) { Array.new(@rowcount) }
+      @blinks = {}
       @leds = {}
       @press = press || L{|c,r,v,s| s.led(c,r,v) }
     end
@@ -57,14 +57,21 @@ class Monome
     end
     
     def blink(col, row, rate=0.5, percent=0.5)
+      stop_blinking(col, row)
       percent = [0.1, [0.9, percent].min].max
-      @blinks[col][row] = Thread.start do
+      @blinks["#{col}x#{row}"] = Thread.start do
         loop do
-          on(col, row)
+          led(col, row, 1)
           sleep rate * percent
-          off(col, row)
+          led(col, row, 0)
           sleep rate * (1-percent)
         end
+      end
+    end
+    
+    def stop_blinking(col, row)
+      if thread = @blinks["#{col}x#{row}"]
+        thread.kill
       end
     end
     
@@ -73,10 +80,12 @@ class Monome
     end
     
     def on(col, row)
+      stop_blinking(col, row)
       led(col, row, 1)
     end
     
     def off(col, row)
+      stop_blinking(col, row)
       led(col, row, 0)
     end
     

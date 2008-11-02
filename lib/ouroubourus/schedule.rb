@@ -14,6 +14,10 @@ module Ouroubourus
       ready.each {|time, proc| proc.call(time) }
     end
     
+    def <<(events)
+      [events].flatten.each {|e| e.call(self) }
+    end
+    
     def at(position, block)
       @queue.push [position.to_i, block]
     end

@@ -17,19 +17,24 @@ class StepSequencer
     schedule.first 1920, @run
   end
   
+  def add_sequence(sequence)
+    sequence.sequencer = self
+    @sequences << sequence
+  end
+  
   def step_length
     1920 / @steps
   end
   
   def perform(step)
-    results = @sequences.collect {|s| s.run(step) }.compact
-    procs, notes = results.partition {|thing| thing.kind_of?(Array) }
+    results = @sequences.collect {|s| s.run(step) }.flatten.compact
+    procs, notes = results.partition {|thing| thing.kind_of?(Proc) }
     play notes
-    procs.each {|p| schedule.next p.first, p.last }
+    schedule << procs
   end
   
   class Sequence
-    attr_accessor :pitch, :velocity, :duration, :sequence, :steps
+    attr_accessor :pitch, :velocity, :duration, :sequence, :steps, :sequencer
     
     def initialize(pitch, options={})
       @pitch = pitch
@@ -37,10 +42,14 @@ class StepSequencer
       @duration = options[:duration] || 80
       @steps    = options[:steps] || 16
       @sequence = (options[:sequence] || [0] * @steps).collect {|n| n.to_f }
+      @queue    = []
     end
     
     def run(step)
-      note(pitch, velocity_for(step).to_i, duration) if rand < @sequence[step]
+      events = @queue.dup
+      @queue = []
+      events << note(pitch, velocity_for(step).to_i, duration) if rand < @sequence[step]
+      events
     end
     
     def get(position)

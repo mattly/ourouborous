@@ -29,23 +29,53 @@ class GridSequence
   def initialize(pitch, row, options={})
     @steps = options.delete(:steps) || 16
     @sequence = StepSequencer::Sequence.new(pitch, options)
-    @grid = Monome::Grid.new(0..(@steps-1), row, L{|c,r,v| toggle(c,v) })
+    @grid = Monome::Grid.new(0..(@steps-1), row, L{|c,r,v| Thread.start { pressing(c,v) } })
+    @pressings = [0] * @steps
   end
   
-  def toggle(col, val)
-    return if val.zero?
-    val = @sequence.get(col).zero?? 1 : 0
-    @sequence.set(col, val)
+  def pressing(col, val)
+    if ! val.zero?
+      puts "pressed #{col}"
+      val = @sequence.get(col).zero?? 1 : 0
+      @sequence.set(col, val)
+      @pressings[col] = 1
+      @sequence.sequencer.schedule.in 120, L{|now| start_extended_press(col, now) }
+    else
+      puts "released #{col}: value is #{@sequence.get(col)}"
+      # puts "pressed for: " + @pressings[col]
+      @pressings[col] = 0
+    end
     redraw
   end
   
+  def start_extended_press(col, time)
+    puts "start: pressings[col] is #{@pressings[col]}"
+    return if @pressings[col].zero?
+    @pressings[col] = time
+    puts "starting extended: #{col}: #{@pressings[col]}"
+    @sequence.sequencer.schedule.in 60, L{|now| continue_extended_press(col, now) }
+  end
+  
+  def continue_extended_press(col, time)
+    puts "cont: pressings[col] is #{@pressings[col]}"
+    return if @pressings[col].zero?
+    percent = 1.0 - ((time - @pressings[col]) / 960.0)
+    return if percent < 0.1
+    puts "continuing extended press: #{percent}"
+    @sequence.sequence[col] = percent
+    @grid.blink(col, 0, 0.1, percent/3)
+    @sequence.sequencer.schedule.in 60, L{|now| continue_extended_press(col, now) }
+  end
+  
   def redraw
-    @sequence.sequence.each_with_index {|val, step| @grid.led(step, 0, val)}
+    @sequence.sequence.each_with_index do |val, step|
+      val == val.round ? (val.zero?? @grid.off(step, 0) : @grid.on(step, 0)) : @grid.blink(step, 0, 0.5, val)
+    end
   end
 end
 
 class StepHighlighter
-  attr_accessor :instruments
+  attr_accessor :instruments, :sequencer
   def initialize(instruments)
     @instruments = instruments
   end
@@ -56,17 +86,17 @@ class StepHighlighter
   
   def run(step)
     offs(step).each {|i| i.grid.on(step,0) }
-    [20, L{ offs(step).each {|i| i.grid.off(step,0) } }]
+    L{|q| q.next 40, L{ offs(step).each {|i| i.grid.off(step,0) } } }
   end
 end
 
 # maps to an Ableton Live Impulse instrument
-@kick       = GridSequence.new(60, 0, :steps => steps, :sequence => %w(1 0 0 0) * 4)
+@kick       = GridSequence.new(60, 0, :steps => steps)
 @snare      = GridSequence.new(62, 1, :steps => steps)
 @rim        = GridSequence.new(64, 2, :steps => steps)
 @tom        = GridSequence.new(65, 3, :steps => steps)
-@closedhat  = GridSequence.new(67, 4, :steps => steps, :velocity => 70..100, :sequence => %w(1 0) * 8)
-@openhat    = GridSequence.new(69, 5, :steps => steps, :velocity => 70..100, :sequence => %w(0 1) * 8)
+@closedhat  = GridSequence.new(67, 4, :steps => steps, :velocity => 70..100)
+@openhat    = GridSequence.new(69, 5, :steps => steps, :velocity => 70..100)
 @ride       = GridSequence.new(71, 6, :steps => steps, :velocity => 70..100)
 @crash      = GridSequence.new(72, 7, :steps => steps)
 
@@ -74,15 +104,16 @@ end
 
 sweeper = StepHighlighter.new(@instruments)
 
-@beats.sequences = @instruments.map {|i| i.sequence }
-@beats.sequences << sweeper
-@s.subscribers << @beats
+@beats.add_sequence sweeper
 
 @monome = Monome.new
 @instruments.each do |instrument|
   @monome.add_subgrid instrument.grid
+  @beats.add_sequence instrument.sequence
   instrument.redraw
 end
+
+@s.subscribers << @beats
 
 Signal.trap("INT") { @s.timekeeper.thread.exit!; @monome.clear; "Interrupt caught, cancelling..." }
 
