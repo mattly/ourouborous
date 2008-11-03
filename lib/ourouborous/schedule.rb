@@ -1,4 +1,4 @@
-module Ouroubourus
+module Ourouborous
   class Schedule
     
     attr_accessor :time, :queue

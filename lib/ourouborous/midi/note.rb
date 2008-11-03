@@ -1,4 +1,4 @@
-module Ouroubourus
+module Ourouborous
   module MIDI
     class Note
       

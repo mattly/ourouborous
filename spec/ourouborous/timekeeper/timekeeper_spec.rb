@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../../spec_helper.rb'
 
-describe Ouroubourus::Timekeeper do
+describe Ourouborous::Timekeeper do
   before { @t = AbstractTimer.new }
   
   it "knows how long its resolution is in seconds" do

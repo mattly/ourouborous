@@ -1,20 +1,20 @@
-# Ouroubourus
+# Ourouborous
 
 by Matthew Lyon <matt@flowerpowered.com>
 
 ## Description
 
-Ouroubourus is a re-thinking of a MIDI sequencer system I built in Max/MSP several years ago and never got around to finishing.
+Ourouborous is a re-thinking of a MIDI sequencer system I built in Max/MSP several years ago and never got around to finishing.
 
 ## Features
 
-Ouroubourus is made up of several components:
+Ourouborous is made up of several components:
 
 - The Scheduler:  
   This is currently a remote timer using Kernel#sleep. In the future it will also be able to subscribe to a network scheduler to syncronize multiple processes/computers to the same timer. It uses a time-independent "tick" system which works out to 480 pulses per quarter note at a given tempo, so you can specify durations in musical terms, not fractional seconds.
   
 - Scheduler Subscribers:  
-  Mixin `Ouroubourus::Schedulable` and your class will have its own event queue (`Ouroubourus::Schedule`) that can be driven by a scheduler when added to that scheduler's subscriptions.
+  Mixin `Ourouborous::Schedulable` and your class will have its own event queue (`Ourouborous::Schedule`) that can be driven by a scheduler when added to that scheduler's subscriptions.
 
 - Sequencers:
   A base library of classes to use as a starting point. At this point there is only a simplistic Metronome.

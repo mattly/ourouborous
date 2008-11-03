@@ -1,6 +1,6 @@
 require 'datagrammer'
 class Monome
-  include Ouroubourus::Schedulable
+  include Ourouborous::Schedulable
   
   attr_accessor :listener, :areas, :grids
   

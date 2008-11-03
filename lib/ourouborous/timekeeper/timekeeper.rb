@@ -1,4 +1,4 @@
-module Ouroubourus
+module Ourouborous
   module Timekeeper
     attr_reader :tempo, :resolution, :thread, :now
     

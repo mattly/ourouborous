@@ -1,10 +1,10 @@
-module Ouroubourus
+module Ourouborous
   module Schedulable
     
     attr_accessor :schedule
     
     def initialize(*a, &b)
-      @schedule = Ouroubourus::Schedule.new
+      @schedule = Ourouborous::Schedule.new
     end
     
     def run(time)

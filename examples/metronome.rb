@@ -12,14 +12,14 @@ signature = [4,4]
 
 require 'rubygems'
 require 'midiator'
-require 'lib/ouroubourus'
+require 'lib/ourouborous'
 require 'lib/interfaces/midiator'
 require 'lib/sequencers/metronome'
 
 require 'ruby-debug'
 Debugger.start
 
-@s = Ouroubourus::Scheduler.new :timekeeper => Ouroubourus::LocalTimer.new(tempo)
+@s = Ourouborous::Scheduler.new :timekeeper => Ourouborous::LocalTimer.new(tempo)
 @midi = Midiator.new
 @midi.interface.autodetect_driver
 @midi.interface.program_change 0, 115 # wood block

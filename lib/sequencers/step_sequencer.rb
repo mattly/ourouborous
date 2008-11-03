@@ -1,6 +1,6 @@
 class StepSequencer
-  include Ouroubourus::Schedulable
-  include Ouroubourus::MIDI::Generator
+  include Ourouborous::Schedulable
+  include Ourouborous::MIDI::Generator
   
   attr_accessor :steps, :sequences, :interface
   
@@ -80,7 +80,7 @@ class StepSequencer
     end
     
     def note(pitch, velocity, duration)
-      Ouroubourus::MIDI::Note.new(pitch, velocity, duration, 1, 0)
+      Ourouborous::MIDI::Note.new(pitch, velocity, duration, 1, 0)
     end
   end
   

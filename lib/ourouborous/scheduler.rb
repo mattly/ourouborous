@@ -1,4 +1,4 @@
-module Ouroubourus
+module Ourouborous
   class Scheduler
     
     attr_accessor :subscribers, :timekeeper
@@ -9,7 +9,7 @@ module Ouroubourus
     end
     
     def start
-      return false unless timekeeper.kind_of?(Ouroubourus::Timekeeper)
+      return false unless timekeeper.kind_of?(Ourouborous::Timekeeper)
       timekeeper.start {|now| @subscribers.each{|s| s.run(now) }}
     end
 

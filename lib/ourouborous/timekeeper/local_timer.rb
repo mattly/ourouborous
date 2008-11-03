@@ -1,6 +1,6 @@
-module Ouroubourus
+module Ourouborous
   class LocalTimer
-    include Ouroubourus::Timekeeper
+    include Ourouborous::Timekeeper
     
     def initialize(tempo=120.0, options={})
       @tempo = tempo
