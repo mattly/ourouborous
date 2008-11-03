@@ -6,7 +6,7 @@ require 'spec'
 gem 'ruby-debug'
 require 'ruby-debug'
 
-require "#{File.dirname(__FILE__)}/../lib/ouroubourus"
+require "#{File.dirname(__FILE__)}/../lib/ourouborous"
 
 Debugger.start
 
@@ -18,7 +18,7 @@ class AbstractSchedule
 end
 
 class AbstractTimer
-  include Ouroubourus::Timekeeper
+  include Ourouborous::Timekeeper
   def initialize
     @tempo = 120
     @resolution = 20
