@@ -91,13 +91,11 @@ end
 @closedhat  = GridSequence.new(67, 4, :steps => steps, :velocity => 70..100)
 @openhat    = GridSequence.new(69, 5, :steps => steps, :velocity => 70..100)
 @ride       = GridSequence.new(71, 6, :steps => steps, :velocity => 70..100)
-@crash      = GridSequence.new(72, 7, :steps => steps)
+@crash      = GridSequence.new(72, 7, :steps => steps, :velocity => 115..127)
 
 @instruments = [@kick, @snare, @rim, @tom, @closedhat, @openhat, @ride, @crash]
 
-sweeper = StepHighlighter.new(@instruments)
-
-@beats.add_sequence sweeper
+@beats.add_sequence StepHighlighter.new(@instruments)
 
 @monome = Monome.new
 @instruments.each do |instrument|

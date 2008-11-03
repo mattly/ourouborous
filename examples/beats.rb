@@ -27,10 +27,10 @@ Debugger.start
 @midi.interface.driver.instance_variable_set(:@destination, MIDIator::Driver::CoreMIDI::C.mIDIGetDestination(1)) # ugly hack for now
 @beats = StepSequencer.new :interface => @midi
 # maps to an ableton impulse instrument
-@beats.sequences << StepSequencer::Sequence.new(60, :sequence => kick_probability, :velocity => kick_accent)
-@beats.sequences << StepSequencer::Sequence.new(62, :sequence => snare_probability, :velocity => snare_accent)
-@beats.sequences << StepSequencer::Sequence.new(71, :sequence => hihat_probability, :velocity => hihat_accent)
-@beats.sequences << StepSequencer::Sequence.new(72, :sequence => crash_probability, :velocity => 90..110)
+@beats.add_sequence StepSequencer::Sequence.new(60, :sequence => kick_probability, :velocity => kick_accent)
+@beats.add_sequence StepSequencer::Sequence.new(62, :sequence => snare_probability, :velocity => snare_accent)
+@beats.add_sequence StepSequencer::Sequence.new(71, :sequence => hihat_probability, :velocity => hihat_accent)
+@beats.add_sequence StepSequencer::Sequence.new(72, :sequence => crash_probability, :velocity => 90..110)
 @s.subscribers << @beats
 
 Signal.trap("INT") { @s.timekeeper.thread.exit!; "Interrupt caught, cancelling..." }
