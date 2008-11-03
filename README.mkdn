@@ -11,48 +11,64 @@ Ourouborous is a re-thinking of a MIDI sequencer system I built in Max/MSP sever
 Ourouborous is made up of several components:
 
 - The Scheduler:  
-  This is currently a remote timer using Kernel#sleep. In the future it will also be able to subscribe to a network scheduler to syncronize multiple processes/computers to the same timer. It uses a time-independent "tick" system which works out to 480 pulses per quarter note at a given tempo, so you can specify durations in musical terms, not fractional seconds.
+  This is currently a remote timer using Kernel#sleep. In the future it will also be able to subscribe to a network
+  scheduler to synchronize multiple processes/computers to the same timer. It uses a time-independent "tick" system 
+  which works out to 480 pulses per quarter note at a given tempo, so you can specify durations in musical terms, 
+  not fractional seconds.
   
 - Scheduler Subscribers:  
-  Mixin `Ourouborous::Schedulable` and your class will have its own event queue (`Ourouborous::Schedule`) that can be driven by a scheduler when added to that scheduler's subscriptions.
+  Mixin `Ourouborous::Schedulable` and your class will have its own event queue (`Ourouborous::Schedule`) that can 
+  be driven by a scheduler when added to that scheduler's subscriptions.
+
+- Abstract MIDI Interfaces:
+  Things that generate MIDI shouldn't have to know or care about the details of actually getting it where you want it
+  to go. In `/lib/ourouborous/interfaces/midiator.rb` there is an example interface for talking to Ben Bleything's 
+  MIDIator library. Soon there will be another interface for sending MIDI over UDP via Open Sound Control.
+
+- MIDI Generation:
+  Mixin `Ourouborous::MIDI::Generator` into any schedulable class there are some helpers for scheduling notes and sending
+  them to an abstract MIDI interface. 
 
 - Sequencers:
-  A base library of classes to use as a starting point. At this point there is only a simplistic Metronome.
+  A base library of classes to plug into the scheduler that sequence midi. Currently:
+  
+  * A Metronome! For all your piano practice fun. Handles arbitrary time signatures. See `/examples/metronome.rb`
+  * A Probablistic Step Sequencer. Inspired by Archaeopteryx. See `/examples/beats.rb`
 
 - Effects:
   None yet. Modify your midi in real-time.
 
 - Devices:
-  None yet. A library for specifying specific behaviors with certain devices, like midi knob boxes or a monome.
+  Specific Handlers for dealing with outside devices or actors. These could include input specifically from MIDI 
+  keyboards and knob boxes, a Monome or Lemur device that handles input and displays output, handling output to
+  specific synthesizers you want to interact with in a particular way, etc.
   
-# Synopsis
-
-See the metronome example in `examples/metronome.rb`
-
+  Currently:
+  
+  * Monome. Subdivide your grids, handle button presses, turn the lights on or off, and if you add it to a scheduler,
+    blink the lights on or off easily. See `/examples/monome_beats.rb` for how to integrate this with the step sequencer.
+  
 ## Requirements
 
-- The example provided requires Ben Bleything's [Midiator](http://rubyforge.org/projects/midiator)
-- Network Time Syncing/Serving will require my own [Datagrammer](http://github.com/mattly/datagrammer)
+- The example provided requires Ben Bleything's [Midiator](http://rubyforge.org/projects/midiator) 
+  `gem install bleything-midiator`
+- The Monome device requires my own [Datagrammer](http://github.com/mattly/datagrammer) 
+  `gem install mattly-datagrammer`
 
 ## License
 
 Copyright (c) 2008 Matt Lyon
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions 
+of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+IN THE SOFTWARE.
