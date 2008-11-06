@@ -5,6 +5,7 @@ module Ourouborous
       attr_accessor :note_states
       
       def initialize(*a, &b)
+        super
         @note_states = Hash.new {|h, key| h[key] = nil }
       end
       
@@ -21,10 +22,8 @@ module Ourouborous
       end
       
       def note_on(channel, pitch, velocity)
-        if velocity.zero? ? playing?(channel, pitch) : ! playing?(channel, pitch)
-          record_note(channel, pitch, velocity)
-          @interface.note(channel, pitch, velocity)
-        end
+        record_note(channel, pitch, velocity)
+        @interface.note(channel, pitch, velocity)
       end
       
       def note_off(channel, pitch)

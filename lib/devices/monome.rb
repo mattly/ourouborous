@@ -38,7 +38,7 @@ class Monome
   end
   
   def speak(*message)
-    @lisener.speak(message, @monome_serial[:address], @monome_serial[:port])
+    @listener.speak(message, @monome_serial[:address], @monome_serial[:port])
   end
   
 end
