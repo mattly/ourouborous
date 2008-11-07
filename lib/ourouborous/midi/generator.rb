@@ -4,8 +4,11 @@ module Ourouborous
       
       attr_accessor :note_states
       
-      def initialize(*a, &b)
-        super
+      VALID_PITCHES = 0..127
+      
+      # def initialize(*a, &b)
+        # super wtf?
+      def setup_notes
         @note_states = Hash.new {|h, key| h[key] = nil }
       end
       
@@ -22,6 +25,7 @@ module Ourouborous
       end
       
       def note_on(channel, pitch, velocity)
+        return unless VALID_PITCHES.include?(pitch)
         record_note(channel, pitch, velocity)
         @interface.note(channel, pitch, velocity)
       end

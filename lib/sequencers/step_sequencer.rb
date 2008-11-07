@@ -5,6 +5,7 @@ class StepSequencer
   attr_accessor :steps, :sequences, :interface
   
   def initialize(options={})
+    setup_notes
     super
     @steps      = options[:steps] || 16
     @rows       = options[:rows] || 1
